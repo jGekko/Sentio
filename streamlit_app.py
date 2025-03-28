@@ -62,20 +62,13 @@ with col2:
     
     if analyze_btn and user_input:
         with st.spinner("Analizando..."):
-            # --- TRADUCCIÓN SI ES ESPAÑOL ---
-            input_text = user_input
-            if language == "Español":
-                input_text = translate_to_english(user_input)
-                st.sidebar.info(f"Texto traducido: '{input_text}'")  # Opcional: mostrar traducción
+            # --- CÁLCULO CORREGIDO ---
+            confidence = round(abs(len(user_input))/50 * 100, 2)  # ¡Paréntesis fijos!
             
-            # --- SIMULACIÓN DE MODELO (REMPLAZAR CON TU MODELO REAL) ---
-            # (Ahora usa input_text en lugar de user_input)
             if language == "Español":
-                sentiment = "Positivo 😊" if len(input_text) % 2 == 0 else "Negativo 😠"
+                sentiment = "Positivo 😊" if confidence >= 50 else "Negativo 😠"
             else:
-                sentiment = "Positive 😊" if len(user_input) % 2 == 0 else "Negative 😠"
-                confidence = round(abs(len(user_input)/50 * 100), 2)
-            # --- FIN SIMULACIÓN ---
+                sentiment = "Positive 😊" if confidence >= 50 else "Negative 😠"
             
             # Mostrar resultados
             with st.container():
