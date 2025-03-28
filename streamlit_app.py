@@ -8,9 +8,68 @@ import re
 import urllib.request
 import os
 
-
-# Configuración de la página
+# Configuración de la página con fondo animado
 st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide")
+
+# Aplicar CSS personalizado para el fondo y diseño
+st.markdown("""
+<style>
+    /* Fondo animado */
+    .stApp {
+        background-image: url("https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gifv");
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }
+    
+    /* Contenedor principal para todo el contenido */
+    .main-container {
+        background-color: rgba(0, 0, 0, 0.85);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem auto;
+        max-width: 1200px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Asegurar que los elementos de Streamlit sean transparentes */
+    .stApp > div {
+        background-color: transparent !important;
+    }
+    
+    /* Estilos para el texto */
+    h1, h2, h3, h4, h5, h6 {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    p, label, div:not(.stAlert) {
+        color: white !important;
+    }
+    
+    /* Personalización de componentes */
+    .stTextInput input, .stTextArea textarea {
+        background-color: rgba(255,255,255,0.1) !important;
+        color: white !important;
+    }
+    
+    .stSelectbox select {
+        background-color: rgba(255,255,255,0.1) !important;
+        color: white !important;
+    }
+    
+    .stButton>button {
+        background-color: #4CAF50 !important;
+        color: white !important;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+        width: 100%;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Crear carpeta 'model' si no existe
 if not os.path.exists('model'):
@@ -33,9 +92,14 @@ def load_resources():
         tokenizer = pickle.load(f)
     return model, tokenizer
 
-# --- Funciones de Preprocesamiento (iguales a tu notebook) ---
+try:
+    model, tokenizer = load_resources()
+except Exception as e:
+    st.error(f"Error cargando recursos: {str(e)}")
+    st.stop()
+
+# --- Funciones de Preprocesamiento ---
 def clean_text(texts):
-    """Limpia el texto igual que en tu notebook"""
     cleaned_texts = []
     for text in texts:
         text = text.lower()
@@ -44,7 +108,6 @@ def clean_text(texts):
     return cleaned_texts
 
 def preprocess_text(texts, tokenizer, max_len=50):
-    """Tokeniza y aplica padding igual que en tu notebook"""
     text_seq = tokenizer.texts_to_sequences(texts)
     return pad_sequences(text_seq, maxlen=max_len, padding="post")
 
@@ -56,18 +119,15 @@ def translate_to_english(text):
         return translation.text
     except Exception as e:
         st.error(f"Error en traducción: {e}")
-        return text  # Fallback: usa texto original
+        return text
 
-# --- Función de Predicción (actualizada para 3 clases) ---
+# --- Función de Predicción ---
 def predict_sentiment(text):
-    """Devuelve (clase_predicha, probabilidad) como en tu notebook"""
     try:
-        # Preprocesamiento idéntico al notebook
         text = [text]
         text = clean_text(text)
         text_padded = preprocess_text(text, tokenizer)
         
-        # Predicción
         y_prob = model.predict(text_padded, verbose=0)
         y_pred = np.argmax(y_prob, axis=1)
         
@@ -75,7 +135,6 @@ def predict_sentiment(text):
         pred_class = classes[y_pred[0]]
         pred_prob = float(y_prob[0][y_pred[0]])
         
-        # Mapeo a emojis para Streamlit
         emoji_map = {
             'Negative': '😠 Negativo',
             'Positive': '😊 Positivo', 
@@ -88,68 +147,67 @@ def predict_sentiment(text):
         return None, None
 
 # --- Interfaz de Usuario ---
-st.title("🔍 Sentio - Análisis de Sentimientos")
-
-# Instrucciones debajo del título
-st.markdown("""
-### ℹ️ Instrucciones:
-1. Escribe texto en español/inglés.
-2. Selecciona el idioma del texto.
-3. Haz clic en "Analizar Sentimiento".
-""")
-
-col1, col2 = st.columns([1, 1])
-
-with col1:
-    st.header("📝 Ingresa tu texto")
-    language = st.selectbox("Idioma:", ["Español", "English"])
-    user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
-    analyze_btn = st.button("Analizar Sentimiento", type="primary")
-
-with col2:
-    st.header("📊 Resultado")
+with st.container():
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
-    if analyze_btn:
-        if not user_input:
-            st.warning("⚠️ Por favor ingresa texto")
-        else:
-            with st.spinner("Analizando..."):
-                # Traducción si es necesario
-                input_text = translate_to_english(user_input) if language == "Español" else user_input
-                
-                # Predicción
-                sentiment, confidence = predict_sentiment(input_text)
-                
-                if sentiment and confidence:
-                    confidence_pct = round(confidence * 100, 2)
+    st.title("🔍 Sentio - Análisis de Sentimientos")
+    
+    st.markdown("""
+    ### ℹ️ Instrucciones:
+    1. Escribe texto en español/inglés.
+    2. Selecciona el idioma del texto.
+    3. Haz clic en "Analizar Sentimiento".
+    """)
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.header("📝 Ingresa tu texto")
+        language = st.selectbox("Idioma:", ["Español", "English"])
+        user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
+        analyze_btn = st.button("Analizar Sentimiento", type="primary")
+    
+    with col2:
+        st.header("📊 Resultado")
+        
+        if analyze_btn:
+            if not user_input:
+                st.warning("⚠️ Por favor ingresa texto")
+            else:
+                with st.spinner("Analizando..."):
+                    input_text = translate_to_english(user_input) if language == "Español" else user_input
+                    sentiment, confidence = predict_sentiment(input_text)
                     
-                    # Determinar color según el sentimiento
-                    if "Positivo" in sentiment:
-                        sentiment_color = "#D4EDDA"  # Verde claro
-                        text_color = "#155724"
-                    elif "Negativo" in sentiment:
-                        sentiment_color = "#F8D7DA"  # Rojo claro
-                        text_color = "#721C24"
-                    else:
-                        sentiment_color = "#FFF3CD"  # Amarillo claro
-                        text_color = "#856404"
+                    if sentiment and confidence:
+                        confidence_pct = round(confidence * 100, 2)
                         
-                    # Mostrar resultados
-                    st.markdown(f"""
-                    <div style="
-                        padding: 20px;
-                        border-radius: 10px;
-                        background: {sentiment_color};
-                        color: {text_color};
-                        margin-top: 20px;
-                        font-weight: bold;
-                    ">
-                        <h3>Predicción:</h3>
-                        <p style='font-size: 24px;'>{sentiment}</p>
-                        <p>Confianza: <strong>{confidence_pct}%</strong></p>
-                        <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
-                        <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    st.progress(confidence)
+                        if "Positivo" in sentiment:
+                            sentiment_color = "#D4EDDA"
+                            text_color = "#155724"
+                        elif "Negativo" in sentiment:
+                            sentiment_color = "#F8D7DA"
+                            text_color = "#721C24"
+                        else:
+                            sentiment_color = "#FFF3CD"
+                            text_color = "#856404"
+                            
+                        st.markdown(f"""
+                        <div style="
+                            padding: 20px;
+                            border-radius: 10px;
+                            background: {sentiment_color};
+                            color: {text_color};
+                            margin-top: 20px;
+                            font-weight: bold;
+                        ">
+                            <h3>Predicción:</h3>
+                            <p style='font-size: 24px;'>{sentiment}</p>
+                            <p>Confianza: <strong>{confidence_pct}%</strong></p>
+                            <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
+                            <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        st.progress(confidence)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
