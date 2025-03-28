@@ -6,8 +6,40 @@ import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 import re
 
-# Configuración de la página
+# Configuración de la página con fondo personalizado
 st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide")
+
+# Aplicar CSS personalizado
+st.markdown("""
+<style>
+    /* Fondo de la página */
+    .stApp {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background-attachment: fixed;
+        background-size: cover;
+    }
+    
+    /* Contenedor principal centrado */
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Columnas con espacio para ver el fondo */
+    .stColumns {
+        margin-bottom: 2rem;
+    }
+    
+    /* Títulos con sombra */
+    h1, h2, h3 {
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # --- Carga de Modelo y Tokenizer (con caché) ---
 @st.cache_resource
@@ -86,6 +118,9 @@ def predict_sentiment(text):
         return None, None
 
 # --- Interfaz de Usuario ---
+# Contenedor principal
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
+
 st.title("🔍 Sentio - Análisis de Sentimientos")
 
 # Instrucciones debajo del título
@@ -152,15 +187,5 @@ with col2:
                     
                     st.progress(confidence)
 
-st.markdown(
-    """
-    <style>
-        .balatro-container {
-            width: 100vw;
-            height: 100vh;
-        }
-    </style>
-    <div class="balatro-container"></div>
-    """,
-    unsafe_allow_html=True
-)
+# Cerrar contenedor principal
+st.markdown('</div>', unsafe_allow_html=True)
