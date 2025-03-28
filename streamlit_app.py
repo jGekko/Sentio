@@ -74,7 +74,8 @@ with col2:
                 sentiment = "Positivo 😊" if len(input_text) % 2 == 0 else "Negativo 😠"
             else:
                 sentiment = "Positive 😊" if len(user_input) % 2 == 0 else "Negative 😠"
-                confidence = round(abs(len(user_input))/50 * 100), 2
+                
+            confidence = round(abs(len(input_text)/50 * 100), 2)
             # --- FIN SIMULACIÓN ---
             
             # Mostrar resultados
