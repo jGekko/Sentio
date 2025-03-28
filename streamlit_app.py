@@ -1,52 +1,33 @@
 import streamlit as st
 from googletrans import Translator
+import tensorflow as tf
+import pickle
+import numpy as np
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import os
 
 # Configuración de la página
 st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide")
 
-# Estilos CSS personalizados
-st.markdown("""
-<style>
-    .stTextInput>div>div>input {
-        max-width: 400px;
-    }
-    .stSelectbox>div>div>select {
-        max-width: 200px;
-    }
-    .result-panel {
-        padding: 20px;
-        border-radius: 10px;
-        background-color: #f0f2f6;
-        margin-top: 20px;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Título de la app
-st.title("🔍 Sentio - Análisis de Sentimientos")
-
-# Dividir en dos columnas
-col1, col2 = st.columns([1, 1])
-
-# Panel izquierdo: Entrada de texto
-with col1:
-    st.header("📝 Ingresa tu texto")
+# --- Carga de Modelo y Tokenizer (con caché) ---
+@st.cache_resource
+def load_resources():
+    # Paths relativos a la carpeta 'model'
+    model_path = os.path.join('model', 'modeloSENTIO.h5')
+    tokenizer_path = os.path.join('model', 'tokenizer.pkl')
     
-    # Selector de idioma
-    language = st.selectbox("Idioma:", ["Español", "English"])
-    
-    # Cuadro de texto con contador de caracteres
-    user_input = st.text_area(
-        "Escribe aquí (máx. 50 caracteres):", 
-        max_chars=50,
-        height=150,
-        key="text_input"
-    )
-    
-    # Botón de análisis
-    analyze_btn = st.button("Analizar Sentimiento", type="primary")
+    model = tf.keras.models.load_model(model_path)
+    with open(tokenizer_path, 'rb') as f:
+        tokenizer = pickle.load(f)
+    return model, tokenizer
 
-# Función de traducción
+try:
+    model, tokenizer = load_resources()
+except Exception as e:
+    st.error(f"Error cargando recursos: {str(e)}")
+    st.stop()  # Detiene la app si hay error
+
+# --- Función de Traducción ---
 def translate_to_english(text):
     try:
         translator = Translator()
@@ -54,53 +35,77 @@ def translate_to_english(text):
         return translation.text
     except Exception as e:
         st.error(f"Error en traducción: {e}")
-        return text  # Si falla, envía el texto original
+        return text  # Fallback: usa texto original
 
-# Panel derecho: Resultados (modifica esta parte)
+# --- Función de Predicción ---
+def predict_sentiment(text, max_len=50):
+    sequence = tokenizer.texts_to_sequences([text])
+    padded = pad_sequences(sequence, maxlen=max_len, padding='post', truncating='post')
+    prediction = model.predict(padded, verbose=0)[0][0]  # Suprime output de TensorFlow
+    return prediction
+
+# --- Interfaz de Usuario ---
+st.title("🔍 Sentio - Análisis de Sentimientos")
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    st.header("📝 Ingresa tu texto")
+    language = st.selectbox("Idioma:", ["Español", "English"])
+    user_input = st.text_area("Escribe aquí (máx. 50 caracteres):", max_chars=50, height=150)
+    analyze_btn = st.button("Analizar Sentimiento", type="primary")
+
 with col2:
     st.header("📊 Resultado")
     
     if analyze_btn and user_input:
         with st.spinner("Analizando..."):
-            # --- TRADUCCIÓN SI ES ESPAÑOL ---
-            input_text = user_input
-            if language == "Español":
-                input_text = translate_to_english(user_input)
-                st.sidebar.info(f"Texto traducido: '{input_text}'")  # Opcional: mostrar traducción
+            # Preprocesamiento según idioma
+            input_text = translate_to_english(user_input) if language == "Español" else user_input
             
-            # --- SIMULACIÓN DE MODELO (REMPLAZAR CON TU MODELO REAL) ---
-            # (Ahora usa input_text en lugar de user_input)
             if language == "Español":
-                sentiment = "Positivo 😊" if len(input_text) % 2 == 0 else "Negativo 😠"
-            else:
-                sentiment = "Positive 😊" if len(user_input) % 2 == 0 else "Negative 😠"
-                
-            confidence = round(abs(len(input_text)/50 * 100), 2)
-            # --- FIN SIMULACIÓN ---
+                st.sidebar.info(f"Texto original: '{user_input}'")
+                st.sidebar.info(f"Texto traducido: '{input_text}'")
+            
+            # Predicción real
+            confidence = predict_sentiment(input_text)
+            sentiment_emoji = "😊" if confidence > 0.5 else "😠"
+            sentiment_text = f"{'Positivo' if confidence > 0.5 else 'Negativo'} {sentiment_emoji}"
+            confidence_pct = round(float(confidence) * 100, 2)
             
             # Mostrar resultados
             with st.container():
                 st.markdown(f"""
                 <div class="result-panel">
                     <h3>Predicción:</h3>
-                    <p style='font-size: 24px;'><strong>{sentiment}</strong></p>
-                    <p>Confianza: <strong>{confidence}%</strong></p>
-                    <p>Idioma seleccionado: <strong>{language}</strong></p>
+                    <p style='font-size: 24px;'><strong>{sentiment_text}</strong></p>
+                    <p>Confianza: <strong>{confidence_pct}%</strong></p>
+                    <p>Idioma analizado: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                # Ejemplo de barra de progreso
-                st.progress(confidence / 100)
+                st.progress(float(confidence))
                 
     elif analyze_btn and not user_input:
         st.warning("⚠️ Por favor ingresa texto antes de analizar")
-    else:
-        st.info("👈 Escribe texto y haz clic en 'Analizar Sentimiento'")
 
-# Notas adicionales
+# Sidebar
 st.sidebar.markdown("""
 ### ℹ️ Instrucciones:
-1. Escribe texto en el cuadro (máx. 50 caracteres)
-2. Selecciona el idioma
+1. Escribe texto en español/inglés
+2. Selecciona el idioma del texto
 3. Haz clic en "Analizar Sentimiento"
 """)
+
+# Estilos CSS
+st.markdown("""
+<style>
+    .result-panel {
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #f0f2f6;
+        margin-top: 20px;
+    }
+    .stProgress > div > div > div {
+        background-color: #FF4B4B;  /* Color rojo Sentio */
+    }
+</style>
+""", unsafe_allow_html=True)
