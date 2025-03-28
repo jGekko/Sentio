@@ -101,7 +101,7 @@ col1, col2 = st.columns([1, 1])
 with col1:
     st.header("📝 Ingresa tu texto")
     language = st.selectbox("Idioma:", ["Español", "English"])
-    user_input = st.text_area("Escribe aquí:", max_chars=200, height=100)
+    user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
     analyze_btn = st.button("Analizar Sentimiento", type="primary")
 
 with col2:
@@ -151,3 +151,16 @@ with col2:
                     """, unsafe_allow_html=True)
                     
                     st.progress(confidence)
+
+st.markdown(
+    """
+    <style>
+        .balatro-container {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+    <div class="balatro-container"></div>
+    """,
+    unsafe_allow_html=True
+)
