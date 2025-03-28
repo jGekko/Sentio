@@ -182,20 +182,16 @@ with col2:
                         
                     if "Positivo" in sentiment:
                         sentiment_color = "#8fefa6"
-                        text_color = "000000"
                     elif "Negativo" in sentiment:
                         sentiment_color = "#dc727c"
-                        text_color = "#00000"
                     else:
                         sentiment_color = "#f2d887"
-                        text_color = "#00000"
                             
                     st.markdown(f"""
                     <div style="
                         padding: 20px;
                         border-radius: 10px;
                         background: {sentiment_color};
-                        color: {text_color};
                         margin-top: 20px;
                         font-weight: bold;
                     ">
