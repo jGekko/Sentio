@@ -95,37 +95,19 @@ st.markdown("""
 if not os.path.exists('model'):
     os.makedirs('model')
 
-# URLs de los modelos
-MODEL_URLS = {
-    "Inicial": {
-        "model": "https://github.com/jgekko/sentio-app/raw/main/model/modelSENTIO.h5",
-        "tokenizer": "https://github.com/jgekko/sentio-app/raw/main/model/tokenizer.pkl"
-    },
-    "Normal": {
-        "model": "https://github.com/jgekko/sentio-app/raw/main/model/modelSENTIOfinal.keras",
-        "tokenizer": "https://github.com/jgekko/sentio-app/raw/main/model/tokenizerSENTIOfinal.pkl"
-    }
-}
-
 @st.cache_resource
-def load_resources(model_type="Inicial"):
+def load_resources():
+
     # Descargar archivos si no existen
-    model_filename = "modelSENTIO.h5" if model_type == "Inicial" else "modelSENTIOfinal.keras"
-    tokenizer_filename = "tokenizer.pkl" if model_type == "Inicial" else "tokenizerSENTIOfinal.pkl"
-    
-    model_path = f'model/{model_filename}'
-    tokenizer_path = f'model/{tokenizer_filename}'
+    model_path = f'model/modelSENTIOfinal.keras'
+    tokenizer_path = f'model/tokenizerSENTIOfinal.pkl'
     
     if not os.path.exists(model_path):
-        urllib.request.urlretrieve(MODEL_URLS[model_type]["model"], model_path)
+        urllib.request.urlretrieve(model_path)
     if not os.path.exists(tokenizer_path):
-        urllib.request.urlretrieve(MODEL_URLS[model_type]["tokenizer"], tokenizer_path)
-    
-    # Cargar modelo según extensión
-    if model_filename.endswith('.h5'):
-        model = tf.keras.models.load_model(model_path)
-    else:  # .keras
-        model = tf.keras.models.load_model(model_path)
+        urllib.request.urlretrieve(tokenizer_path)
+
+    model = tf.keras.models.load_model(model_path)
     
     with open(tokenizer_path, 'rb') as f:
         tokenizer = pickle.load(f)
@@ -135,12 +117,10 @@ def load_resources(model_type="Inicial"):
 # --- Interfaz de Usuario ---
 st.markdown('<div class="content-box">', unsafe_allow_html=True)
 
-# Selector de modelo
-model_type = st.selectbox("Selecciona el modelo:", ["SENTIO v0", "SENTIO v1"])
 
 # Cargar recursos según modelo seleccionado
 try:
-    model, tokenizer = load_resources(model_type)
+    model, tokenizer = load_resources()
 except Exception as e:
     st.error(f"Error cargando recursos: {str(e)}")
     st.stop()
