@@ -15,51 +15,57 @@ st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide
 st.markdown("""
 <style>
     /* Fondo animado */
-    .stApp {
+    [data-testid="stAppViewContainer"] {
         background-image: url("https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gifv");
         background-size: cover;
         background-attachment: fixed;
         background-position: center;
     }
 
-    /* Contenedor principal transparente */
-    .main {
-        background-color: transparent !important;
+    /* Contenedor principal de Streamlit - transparente */
+    .main .block-container {
+        background-color: transparent;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
     }
-    
+
     /* Rectángulo negro para el contenido */
     .content-box {
         background-color: rgba(0, 0, 0, 0.85);
-        border-radius: 15px;
-        padding: 2rem;
-        margin: 2rem auto;
+        border-radius: px;
+        padding: 20rem;
+        margin: 0 auto;
         max-width: 1200px;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
-    /* Estilos para el texto */
-    h1, h2, h3, h4, h5, h6 {
+
+    /* Texto blanco para todo dentro del content-box */
+    .content-box h1, 
+    .content-box h2, 
+    .content-box h3, 
+    .content-box h4, 
+    .content-box h5, 
+    .content-box h6,
+    .content-box p,
+    .content-box label,
+    .content-box div {
         color: white !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
-    
-    p, label, div:not(.stAlert) {
-        color: white !important;
-    }
-    
-    /* Personalización de componentes */
-    .stTextInput input, .stTextArea textarea {
+
+    /* Personalización de componentes dentro del content-box */
+    .content-box .stTextInput input, 
+    .content-box .stTextArea textarea {
         background-color: rgba(255,255,255,0.1) !important;
         color: white !important;
     }
     
-    .stSelectbox select {
+    .content-box .stSelectbox select {
         background-color: rgba(255,255,255,0.1) !important;
         color: white !important;
     }
     
-    .stButton>button {
+    .content-box .stButton>button {
         background-color: #4CAF50 !important;
         color: white !important;
         font-weight: bold;
@@ -67,6 +73,19 @@ st.markdown("""
         border-radius: 5px;
         padding: 0.5rem 1rem;
         width: 100%;
+    }
+
+    /* Contenedor de resultados con texto negro */
+    .result-box {
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    
+    .result-box h3,
+    .result-box p {
+        color: #fffff !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -148,65 +167,56 @@ def predict_sentiment(text):
 
 # --- Interfaz de Usuario ---
 st.markdown('<div class="content-box">', unsafe_allow_html=True)
-
-st.title("🔍 Sentio - Análisis de Sentimientos")
+with st.container():
     
-st.markdown("""
-### ℹ️ Instrucciones:
-1. Escribe texto en español/inglés.
-2. Selecciona el idioma del texto.
-3. Haz clic en "Analizar Sentimiento".
-""")
+    st.title("🔍 Sentio - Análisis de Sentimientos")
     
-col1, col2 = st.columns([1, 1])
+    st.markdown("""
+    ### ℹ️ Instrucciones:
+    1. Escribe texto en español/inglés.
+    2. Selecciona el idioma del texto.
+    3. Haz clic en "Analizar Sentimiento".
+    """)
     
-with col1:
-    st.header("📝 Ingresa tu texto")
-    language = st.selectbox("Idioma:", ["Español", "English"])
-    user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
-    analyze_btn = st.button("Analizar Sentimiento", type="primary")
+    col1, col2 = st.columns([1, 1])
     
-with col2:
-    st.header("📊 Resultado")
-        
-    if analyze_btn:
-        if not user_input:
-            st.warning("⚠️ Por favor ingresa texto")
-        else:
-            with st.spinner("Analizando..."):
-                input_text = translate_to_english(user_input) if language == "Español" else user_input
-                sentiment, confidence = predict_sentiment(input_text)
-                
-                if sentiment and confidence:
-                    confidence_pct = round(confidence * 100, 2)
-                        
-                    if "Positivo" in sentiment:
-                        sentiment_color = "#8fefa6"
-                        text_color = "#000000"  # Negro
-                    elif "Negativo" in sentiment:
-                        sentiment_color = "#dc727c"
-                        text_color = "#000000"  # Negro
-                    else:
-                        sentiment_color = "#f2d887"
-                        text_color = "#000000"  # Negro
+    with col1:
+        st.header("📝 Ingresa tu texto")
+        language = st.selectbox("Idioma:", ["Español", "English"])
+        user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
+        analyze_btn = st.button("Analizar Sentimiento", type="primary")
+    
+    with col2:
+        st.header("📊 Resultado")
+            
+        if analyze_btn:
+            if not user_input:
+                st.warning("⚠️ Por favor ingresa texto")
+            else:
+                with st.spinner("Analizando..."):
+                    input_text = translate_to_english(user_input) if language == "Español" else user_input
+                    sentiment, confidence = predict_sentiment(input_text)
+                    
+                    if sentiment and confidence:
+                        confidence_pct = round(confidence * 100, 2)
                             
-                    st.markdown(f"""
-                    <div style="
-                        padding: 20px;
-                        border-radius: 10px;
-                        background: {sentiment_color};
-                        color: {text_color};
-                        margin-top: 20px;
-                        font-weight: bold;
-                    ">
-                        <h3 style="color: {text_color}">Predicción:</h3>
-                        <p style='font-size: 24px; color: {text_color}'>{sentiment}</p>
-                        <p style="color: {text_color}">Confianza: <strong>{confidence_pct}%</strong></p>
-                        <p style="color: {text_color}">Texto analizado: <i>"{input_text[:50]}..."</i></p>
-                        <p style="color: {text_color}">Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                        
-                    st.progress(confidence)
+                        if "Positivo" in sentiment:
+                            bg_color = "#8fefa6"
+                        elif "Negativo" in sentiment:
+                            bg_color = "#dc727c"
+                        else:
+                            bg_color = "#f2d887"
+                                
+                        st.markdown(f"""
+                        <div class="result-box" style="background: {bg_color}">
+                            <h3>Predicción:</h3>
+                            <p style='font-size: 24px;'>{sentiment}</p>
+                            <p>Confianza: <strong>{confidence_pct}%</strong></p>
+                            <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
+                            <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                            
+                        st.progress(confidence)
 
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('<div class="content-box">', unsafe_allow_html=True)
