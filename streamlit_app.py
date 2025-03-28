@@ -6,7 +6,7 @@ import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 import re
 
-# Configuración de la página con fondo personalizado
+# Configuración de la página
 st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide")
 
 # --- Carga de Modelo y Tokenizer (con caché) ---
@@ -86,9 +86,6 @@ def predict_sentiment(text):
         return None, None
 
 # --- Interfaz de Usuario ---
-# Contenedor principal
-st.markdown('<div class="main-container">', unsafe_allow_html=True)
-
 st.title("🔍 Sentio - Análisis de Sentimientos")
 
 # Instrucciones debajo del título
@@ -154,6 +151,3 @@ with col2:
                     """, unsafe_allow_html=True)
                     
                     st.progress(confidence)
-
-# Cerrar contenedor principal
-st.markdown('</div>', unsafe_allow_html=True)
