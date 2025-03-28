@@ -20,10 +20,15 @@ st.markdown("""
         background-position: center;
     }
     
-    /* Contenedor principal que envuelve TODO el contenido */
+    /* Contenedor principal negro con efecto de tarjeta */
     .main-content-wrapper {
+        position: absolute;
+        top: 5%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
         max-width: 1200px;
-        margin: 2rem auto;
+        min-height: 90vh;
         padding: 2rem;
         background-color: rgba(0, 0, 0, 0.85);
         border-radius: 15px;
@@ -84,74 +89,129 @@ def load_resources():
         tokenizer = pickle.load(f)
     return model, tokenizer
 
-# (Mantén aquí todas tus funciones igual: clean_text, preprocess_text, translate_to_english, predict_sentiment)
+try:
+    model, tokenizer = load_resources()
+    if not model:
+        raise ValueError("El modelo no se cargó correctamente.")
+    if not tokenizer or not hasattr(tokenizer, "word_index"):
+        raise ValueError("El tokenizer no se cargó correctamente.")
+except Exception as e:
+    st.error(f"Error cargando recursos: {str(e)}")
+    st.stop()
+
+# --- Funciones de Preprocesamiento ---
+def clean_text(texts):
+    cleaned_texts = []
+    for text in texts:
+        text = text.lower()
+        text = re.sub(r'[^\w\s]', '', text)
+        cleaned_texts.append(text)
+    return cleaned_texts
+
+def preprocess_text(texts, tokenizer, max_len=50):
+    text_seq = tokenizer.texts_to_sequences(texts)
+    return pad_sequences(text_seq, maxlen=max_len, padding="post")
+
+# --- Función de Traducción ---
+def translate_to_english(text):
+    try:
+        translator = Translator()
+        translation = translator.translate(text, src='es', dest='en')
+        return translation.text
+    except Exception as e:
+        st.error(f"Error en traducción: {e}")
+        return text
+
+# --- Función de Predicción ---
+def predict_sentiment(text):
+    try:
+        text = [text]
+        text = clean_text(text)
+        text_padded = preprocess_text(text, tokenizer)
+        
+        y_prob = model.predict(text_padded, verbose=0)
+        y_pred = np.argmax(y_prob, axis=1)
+        
+        classes = ['Negative', 'Positive', 'Neutral']
+        pred_class = classes[y_pred[0]]
+        pred_prob = float(y_prob[0][y_pred[0]])
+        
+        emoji_map = {
+            'Negative': '😠 Negativo',
+            'Positive': '😊 Positivo', 
+            'Neutral': '😐 Neutral'
+        }
+        
+        return emoji_map[pred_class], pred_prob
+    except Exception as e:
+        st.error(f"Error en predicción: {str(e)}")
+        return None, None
 
 # --- Interfaz de usuario dentro del contenedor principal ---
-with st.container():
-    st.markdown('<div class="main-content-wrapper">', unsafe_allow_html=True)
+st.markdown('<div class="main-content-wrapper">', unsafe_allow_html=True)
+
+# Título principal
+st.title("🔍 Sentio - Análisis de Sentimientos")
+
+# Instrucciones
+st.markdown("""
+### ℹ️ Instrucciones:
+1. Escribe texto en español/inglés.
+2. Selecciona el idioma del texto.
+3. Haz clic en "Analizar Sentimiento".
+""")
+
+# Columnas para entrada y resultados
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    st.header("📝 Ingresa tu texto")
+    language = st.selectbox("Idioma:", ["Español", "English"])
+    user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
+    analyze_btn = st.button("Analizar Sentimiento", type="primary")
+
+with col2:
+    st.header("📊 Resultado")
     
-    # Título principal
-    st.title("🔍 Sentio - Análisis de Sentimientos")
-    
-    # Instrucciones
-    st.markdown("""
-    ### ℹ️ Instrucciones:
-    1. Escribe texto en español/inglés.
-    2. Selecciona el idioma del texto.
-    3. Haz clic en "Analizar Sentimiento".
-    """)
-    
-    # Columnas para entrada y resultados
-    col1, col2 = st.columns([1, 1])
-    
-    with col1:
-        st.header("📝 Ingresa tu texto")
-        language = st.selectbox("Idioma:", ["Español", "English"])
-        user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
-        analyze_btn = st.button("Analizar Sentimiento", type="primary")
-    
-    with col2:
-        st.header("📊 Resultado")
-        
-        if analyze_btn:
-            if not user_input:
-                st.warning("⚠️ Por favor ingresa texto")
-            else:
-                with st.spinner("Analizando..."):
-                    input_text = translate_to_english(user_input) if language == "Español" else user_input
-                    sentiment, confidence = predict_sentiment(input_text)
+    if analyze_btn:
+        if not user_input:
+            st.warning("⚠️ Por favor ingresa texto")
+        else:
+            with st.spinner("Analizando..."):
+                input_text = translate_to_english(user_input) if language == "Español" else user_input
+                sentiment, confidence = predict_sentiment(input_text)
+                
+                if sentiment and confidence:
+                    confidence_pct = round(confidence * 100, 2)
                     
-                    if sentiment and confidence:
-                        confidence_pct = round(confidence * 100, 2)
+                    if "Positivo" in sentiment:
+                        sentiment_color = "#D4EDDA"
+                        text_color = "#155724"
+                    elif "Negativo" in sentiment:
+                        sentiment_color = "#F8D7DA"
+                        text_color = "#721C24"
+                    else:
+                        sentiment_color = "#FFF3CD"
+                        text_color = "#856404"
                         
-                        if "Positivo" in sentiment:
-                            sentiment_color = "#D4EDDA"
-                            text_color = "#155724"
-                        elif "Negativo" in sentiment:
-                            sentiment_color = "#F8D7DA"
-                            text_color = "#721C24"
-                        else:
-                            sentiment_color = "#FFF3CD"
-                            text_color = "#856404"
-                            
-                        st.markdown(f"""
-                        <div style="
-                            padding: 20px;
-                            border-radius: 10px;
-                            background: {sentiment_color};
-                            color: {text_color};
-                            margin-top: 20px;
-                            font-weight: bold;
-                        ">
-                            <h3>Predicción:</h3>
-                            <p style='font-size: 24px;'>{sentiment}</p>
-                            <p>Confianza: <strong>{confidence_pct}%</strong></p>
-                            <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
-                            <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                        st.progress(confidence)
-    
-    # Cierre del contenedor principal
-    st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div style="
+                        padding: 20px;
+                        border-radius: 10px;
+                        background: {sentiment_color};
+                        color: {text_color};
+                        margin-top: 20px;
+                        font-weight: bold;
+                    ">
+                        <h3>Predicción:</h3>
+                        <p style='font-size: 24px;'>{sentiment}</p>
+                        <p>Confianza: <strong>{confidence_pct}%</strong></p>
+                        <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
+                        <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.progress(confidence)
+
+# Cierre del contenedor principal
+st.markdown('</div>', unsafe_allow_html=True)
