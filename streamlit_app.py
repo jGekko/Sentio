@@ -13,8 +13,8 @@ st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide
 @st.cache_resource
 def load_resources():
     # Paths relativos a la carpeta 'model'
-    model_path = 'model/modelSENTIO.h5'
-    tokenizer_path = 'model/tokenizer.pkl'
+    model_path = 'jgekko/sentio-app/main/model/modelSENTIO.h5'
+    tokenizer_path = 'jgekko/sentio-app/main/model/tokenizer.pkl'
     
     model = tf.keras.models.load_model(model_path)
     with open(tokenizer_path, 'rb') as f:
