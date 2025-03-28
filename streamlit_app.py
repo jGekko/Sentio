@@ -32,8 +32,8 @@ st.markdown("""
     /* Rectángulo negro para el contenido */
     .content-box {
         background-color: rgba(0, 0, 0, 0.85);
-        border-radius: 40px;
-        padding: 2rem;
+        border-radius: 15px;
+        padding: 10rem;
         margin: 0 auto;
         max-width: 1200px;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
