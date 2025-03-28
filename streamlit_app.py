@@ -22,9 +22,20 @@ st.markdown("""
         background-position: center;
     }
 
-    /* Asegurar que los elementos de Streamlit sean transparentes */
-    .stApp > div {
+    /* Contenedor principal transparente */
+    .main {
         background-color: transparent !important;
+    }
+    
+    /* Rectángulo negro para el contenido */
+    .content-box {
+        background-color: rgba(0, 0, 0, 0.85);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem auto;
+        max-width: 1200px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     /* Estilos para el texto */
@@ -136,18 +147,8 @@ def predict_sentiment(text):
         return None, None
 
 # --- Interfaz de Usuario ---
-st.markdown(f""""
-        <div style="
-            background-color: rgba(0, 0, 0, 0.85);
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem auto;
-            max-width: 1200px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        ">
-            """, unsafe_allow_html=True)
-    
+st.markdown('<div class="content-box">', unsafe_allow_html=True)
+
 st.title("🔍 Sentio - Análisis de Sentimientos")
     
 st.markdown("""
@@ -181,25 +182,31 @@ with col2:
                         
                     if "Positivo" in sentiment:
                         sentiment_color = "#8fefa6"
+                        text_color = "#000000"  # Negro
                     elif "Negativo" in sentiment:
                         sentiment_color = "#dc727c"
+                        text_color = "#000000"  # Negro
                     else:
                         sentiment_color = "#f2d887"
+                        text_color = "#000000"  # Negro
                             
                     st.markdown(f"""
                     <div style="
                         padding: 20px;
                         border-radius: 10px;
                         background: {sentiment_color};
+                        color: {text_color};
                         margin-top: 20px;
                         font-weight: bold;
                     ">
-                        <h3>Predicción:</h3>
-                        <p style='font-size: 24px;'>{sentiment}</p>
-                        <p>Confianza: <strong>{confidence_pct}%</strong></p>
-                        <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
-                        <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
+                        <h3 style="color: {text_color}">Predicción:</h3>
+                        <p style='font-size: 24px; color: {text_color}'>{sentiment}</p>
+                        <p style="color: {text_color}">Confianza: <strong>{confidence_pct}%</strong></p>
+                        <p style="color: {text_color}">Texto analizado: <i>"{input_text[:50]}..."</i></p>
+                        <p style="color: {text_color}">Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
                     </div>
                     """, unsafe_allow_html=True)
                         
                     st.progress(confidence)
+
+st.markdown('</div>', unsafe_allow_html=True)
