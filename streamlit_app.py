@@ -151,3 +151,32 @@ with col2:
                     """, unsafe_allow_html=True)
                     
                     st.progress(confidence)
+
+background_html = """
+		<style>
+
+		#bg {
+		  position: fixed;
+		  right: 0;
+		  bottom: 0;
+		  min-width: 100%; 
+		  min-height: 100%;
+		}
+
+		.content {
+		  position: fixed;
+		  bottom: 0;
+		  background: rgba(0, 0, 0, 0.75);
+		  color: #f1f1f1;
+		  width: 100%;
+		  padding: 20px;
+		}
+
+		</style>	
+		<video autoplay muted loop id="bg">
+		  <source src="https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gifv")>
+		  Your browser does not support HTML5 video.
+		</video>
+        """
+
+st.markdown(video_html, unsafe_allow_html=True)
