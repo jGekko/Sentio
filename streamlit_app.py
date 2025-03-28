@@ -33,7 +33,7 @@ st.markdown("""
     .content-box {
         background-color: rgba(0, 0, 0, 0.85);
         border-radius: 15px;
-        padding: 10rem;
+        padding: 6rem;
         margin: 0 auto;
         max-width: 1200px;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
@@ -181,8 +181,8 @@ def predict_sentiment(text):
         pred_prob = float(y_prob[0][y_pred[0]])
         
         emoji_map = {
-            'Negative': '😠 Negativo',
-            'Positive': '😊 Positivo', 
+            'Negative': '😠 Negativo (tristeza/ira/desesperacion)',
+            'Positive': '😊 Positivo (alegria/amor/entusiasmo)', 
             'Neutral': '😐 Neutral'
         }
         
