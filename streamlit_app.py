@@ -148,66 +148,65 @@ def predict_sentiment(text):
 
 # --- Interfaz de Usuario ---
 st.markdown('<div class="main-container">', unsafe_allow_html=True)
-with st.container():
     
-    st.title("🔍 Sentio - Análisis de Sentimientos")
+st.title("🔍 Sentio - Análisis de Sentimientos")
     
-    st.markdown("""
-    ### ℹ️ Instrucciones:
-    1. Escribe texto en español/inglés.
-    2. Selecciona el idioma del texto.
-    3. Haz clic en "Analizar Sentimiento".
-    """)
+st.markdown("""
+### ℹ️ Instrucciones:
+1. Escribe texto en español/inglés.
+2. Selecciona el idioma del texto.
+3. Haz clic en "Analizar Sentimiento".
+""")
     
-    col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns([1, 1])
     
-    with col1:
-        st.header("📝 Ingresa tu texto")
-        language = st.selectbox("Idioma:", ["Español", "English"])
-        user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
-        analyze_btn = st.button("Analizar Sentimiento", type="primary")
+with col1:
+    st.header("📝 Ingresa tu texto")
+    language = st.selectbox("Idioma:", ["Español", "English"])
+    user_input = st.text_area("Escribe aquí:", max_chars=50, height=100)
+    analyze_btn = st.button("Analizar Sentimiento", type="primary")
     
-    with col2:
-        st.header("📊 Resultado")
+with col2:
+    st.header("📊 Resultado")
         
-        if analyze_btn:
-            if not user_input:
-                st.warning("⚠️ Por favor ingresa texto")
-            else:
-                with st.spinner("Analizando..."):
-                    input_text = translate_to_english(user_input) if language == "Español" else user_input
-                    sentiment, confidence = predict_sentiment(input_text)
-                    
-                    if sentiment and confidence:
-                        confidence_pct = round(confidence * 100, 2)
+    if analyze_btn:
+        if not user_input:
+            st.warning("⚠️ Por favor ingresa texto")
+        else:
+            with st.spinner("Analizando..."):
+                input_text = translate_to_english(user_input) if language == "Español" else user_input
+                sentiment, confidence = predict_sentiment(input_text)
+                
+                if sentiment and confidence:
+                    confidence_pct = round(confidence * 100, 2)
                         
-                        if "Positivo" in sentiment:
-                            sentiment_color = "#D4EDDA"
-                            text_color = "#155724"
-                        elif "Negativo" in sentiment:
-                            sentiment_color = "#F8D7DA"
-                            text_color = "#721C24"
-                        else:
-                            sentiment_color = "#FFF3CD"
-                            text_color = "#856404"
+                    if "Positivo" in sentiment:
+                        sentiment_color = "#D4EDDA"
+                        text_color = "#155724"
+                    elif "Negativo" in sentiment:
+                        sentiment_color = "#F8D7DA"
+                        text_color = "#721C24"
+                    else:
+                        sentiment_color = "#FFF3CD"
+                        text_color = "#856404"
                             
-                        st.markdown(f"""
-                        <div style="
-                            padding: 20px;
-                            border-radius: 10px;
-                            background: {sentiment_color};
-                            color: {text_color};
-                            margin-top: 20px;
-                            font-weight: bold;
-                        ">
-                            <h3>Predicción:</h3>
-                            <p style='font-size: 24px;'>{sentiment}</p>
-                            <p>Confianza: <strong>{confidence_pct}%</strong></p>
-                            <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
-                            <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
-                        </div>
-                        """, unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div style="
+                        padding: 20px;
+                        border-radius: 10px;
+                        background: {sentiment_color};
+                        color: {text_color};
+                        margin-top: 20px;
+                        font-weight: bold;
+                    ">
+                        <h3>Predicción:</h3>
+                        <p style='font-size: 24px;'>{sentiment}</p>
+                        <p>Confianza: <strong>{confidence_pct}%</strong></p>
+                        <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
+                        <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
+                    </div>
+                    """, unsafe_allow_html=True)
                         
-                        st.progress(confidence)
+                    st.progress(confidence)
     
-    st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
