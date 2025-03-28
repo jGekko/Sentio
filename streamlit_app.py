@@ -147,7 +147,8 @@ def predict_sentiment(text):
         return None, None
 
 # --- Interfaz de Usuario ---
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
+with st.container():
     
     st.title("🔍 Sentio - Análisis de Sentimientos")
     
