@@ -212,7 +212,7 @@ with col2:
                             
                     st.markdown(f"""
                     <div class="result-box" style="background: {bg_color}">
-                        <h3>Predicción (Modelo {model_type}):</h3>
+                        <h3>Predicción:</h3>
                         <p style='font-size: 24px;'>{sentiment}</p>
                         <p>Confianza: <strong>{confidence_pct}%</strong></p>
                         <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
