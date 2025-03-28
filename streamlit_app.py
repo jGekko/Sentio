@@ -5,30 +5,33 @@ import pickle
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 import re
+import urllib.request
+import os
+
 
 # Configuración de la página
 st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide")
 
-# --- Carga de Modelo y Tokenizer (con caché) ---
+# Crear carpeta 'model' si no existe
+if not os.path.exists('model'):
+    os.makedirs('model')
+
+# Descargar archivos desde GitHub
+model_url = 'https://github.com/jgekko/sentio-app/raw/main/model/modelSENTIO.h5'
+tokenizer_url = 'https://github.com/jgekko/sentio-app/raw/main/model/tokenizer.pkl'
+
+@st.cache_resource
 def load_resources():
-    # Paths relativos a la carpeta 'model'
-    model_path = 'jgekko/sentio-app/main/model/modelSENTIO.h5'
-    tokenizer_path = 'jgekko/sentio-app/main/model/tokenizer.pkl'
+    # Descargar archivos si no existen
+    if not os.path.exists('model/modelSENTIO.h5'):
+        urllib.request.urlretrieve(model_url, 'model/modelSENTIO.h5')
+    if not os.path.exists('model/tokenizer.pkl'):
+        urllib.request.urlretrieve(tokenizer_url, 'model/tokenizer.pkl')
     
-    model = tf.keras.models.load_model(model_path)
-    with open(tokenizer_path, 'rb') as f:
+    model = tf.keras.models.load_model('model/modelSENTIO.h5')
+    with open('model/tokenizer.pkl', 'rb') as f:
         tokenizer = pickle.load(f)
     return model, tokenizer
-
-try:
-    model, tokenizer = load_resources()
-    if not model:
-        raise ValueError("El modelo no se cargó correctamente.")
-    if not tokenizer or not hasattr(tokenizer, "word_index"):
-        raise ValueError("El tokenizer no se cargó correctamente.")
-except Exception as e:
-    st.error(f"Error cargando recursos: {str(e)}")
-    st.stop()
 
 # --- Funciones de Preprocesamiento (iguales a tu notebook) ---
 def clean_text(texts):
