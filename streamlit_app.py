@@ -10,7 +10,6 @@ import re
 st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide")
 
 # --- Carga de Modelo y Tokenizer (con caché) ---
-@st.cache_resource
 def load_resources():
     # Paths relativos a la carpeta 'model'
     model_path = 'jgekko/sentio-app/main/model/modelSENTIO.h5'
