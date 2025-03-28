@@ -21,18 +21,7 @@ st.markdown("""
         background-attachment: fixed;
         background-position: center;
     }
-    
-    /* Contenedor principal para todo el contenido */
-    .main-container {
-        background-color: rgba(0, 0, 0, 0.85);
-        border-radius: 15px;
-        padding: 2rem;
-        margin: 2rem auto;
-        max-width: 1200px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
+
     /* Asegurar que los elementos de Streamlit sean transparentes */
     .stApp > div {
         background-color: transparent !important;
@@ -147,7 +136,17 @@ def predict_sentiment(text):
         return None, None
 
 # --- Interfaz de Usuario ---
-st.markdown('<div class="main-container">', unsafe_allow_html=True)
+st.markdown(f""""
+        <div style="
+            background-color: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        ">
+            """, unsafe_allow_html=True)
     
 st.title("🔍 Sentio - Análisis de Sentimientos")
     
@@ -204,5 +203,3 @@ with col2:
                     """, unsafe_allow_html=True)
                         
                     st.progress(confidence)
-    
-st.markdown('</div>', unsafe_allow_html=True)
