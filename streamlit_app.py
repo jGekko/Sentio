@@ -114,26 +114,35 @@ with col2:
                     
                     # Determinar color según el sentimiento
                     if "Positivo" in sentiment:
-                        sentiment_color = "#2ecc71"  # Verde
-                        emoji = "😊"
+                        sentiment_color = "#D4EDDA"  # Verde claro
+                        text_color = "#155724"
                     elif "Negativo" in sentiment:
-                        sentiment_color = "#e74c3c"  # Rojo
-                        emoji = "😠"
+                        sentiment_color = "#F8D7DA"  # Rojo claro
+                        text_color = "#721C24"
                     else:
-                        sentiment_color = "#f39c12"  # Naranja
-                        emoji = "😐"
+                        sentiment_color = "#FFF3CD"  # Amarillo claro
+                        text_color = "#856404"
                         
                     # Mostrar resultados
                     st.markdown(f"""
-                    <div style="padding:20px; border-radius:10px; background:#f0f2f6; margin-top:20px;">
+                    <div style="
+                        padding: 20px;
+                        border-radius: 10px;
+                        background: {sentiment_color};
+                        color: {text_color};
+                        margin-top: 20px;
+                        font-weight: bold;
+                    ">
                         <h3>Predicción:</h3>
-                        <p style='font-size:24px;'><strong>{sentiment}</strong></p>
+                        <p style='font-size: 24px;'>{sentiment}</p>
                         <p>Confianza: <strong>{confidence_pct}%</strong></p>
                         <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
                         <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
                     </div>
                     """, unsafe_allow_html=True)
+                    
                     st.progress(confidence)
+
 
 # Sidebar
 st.sidebar.markdown("""
