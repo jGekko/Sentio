@@ -181,14 +181,14 @@ with col2:
                     confidence_pct = round(confidence * 100, 2)
                         
                     if "Positivo" in sentiment:
-                        sentiment_color = "#D4EDDA"
-                        text_color = "#155724"
+                        sentiment_color = "#8fefa6"
+                        text_color = "000000"
                     elif "Negativo" in sentiment:
-                        sentiment_color = "#F8D7DA"
-                        text_color = "#721C24"
+                        sentiment_color = "#dc727c"
+                        text_color = "#00000"
                     else:
-                        sentiment_color = "#FFF3CD"
-                        text_color = "#856404"
+                        sentiment_color = "#f2d887"
+                        text_color = "#00000"
                             
                     st.markdown(f"""
                     <div style="
