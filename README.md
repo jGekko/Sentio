@@ -23,3 +23,7 @@ TensorFlow/Keras (modelo de deep learning)
 Googletrans (traducción automática)
 
 BeautifulSoup y Spacy (librerias de analisis de lenguaje y texto)
+
+## 🌍 Demo en línea
+
+Puedes probar una versión en vivo de la aplicación en: Enlace a demo: https://projectsentio.streamlit.app/#bedbd6d8

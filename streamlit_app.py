@@ -114,10 +114,6 @@ def load_resources():
     
     return model, tokenizer
 
-# --- Interfaz de Usuario ---
-st.markdown('<div class="content-box">', unsafe_allow_html=True)
-
-
 # Cargar recursos según modelo seleccionado
 try:
     model, tokenizer = load_resources()
@@ -221,5 +217,3 @@ with col2:
                     """, unsafe_allow_html=True)
                         
                     st.progress(confidence)
-
-st.markdown('<div class="content-box">', unsafe_allow_html=True)
