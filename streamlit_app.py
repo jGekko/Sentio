@@ -32,7 +32,7 @@ st.markdown("""
     /* Rectángulo negro para el contenido */
     .content-box {
         background-color: rgba(0, 0, 0, 0.85);
-        border-radius: 15px;
+        border-radius: 40px;
         padding: 2rem;
         margin: 0 auto;
         max-width: 1200px;
@@ -242,4 +242,4 @@ with col2:
                         
                     st.progress(confidence)
 
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('<div class="content-box">', unsafe_allow_html=True)
