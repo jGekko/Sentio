@@ -3,8 +3,8 @@ from googletrans import Translator
 import tensorflow as tf
 import pickle
 import numpy as np
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-import os
+from keras.preprocessing.sequence import pad_sequences
+import re
 
 # Configuración de la página
 st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide")
@@ -13,8 +13,8 @@ st.set_page_config(page_title="Sentio - Análisis de Sentimientos", layout="wide
 @st.cache_resource
 def load_resources():
     # Paths relativos a la carpeta 'model'
-    model_path = ('/workspaces/sentio-app/model/modelSENTIO.h5')
-    tokenizer_path = ('/workspaces/sentio-app/model/tokenizer.pkl')
+    model_path = 'model/modelSENTIO.h5'
+    tokenizer_path = 'model/tokenizer.pkl'
     
     model = tf.keras.models.load_model(model_path)
     with open(tokenizer_path, 'rb') as f:
@@ -23,9 +23,28 @@ def load_resources():
 
 try:
     model, tokenizer = load_resources()
+    if not model:
+        raise ValueError("El modelo no se cargó correctamente.")
+    if not tokenizer or not hasattr(tokenizer, "word_index"):
+        raise ValueError("El tokenizer no se cargó correctamente.")
 except Exception as e:
     st.error(f"Error cargando recursos: {str(e)}")
-    st.stop()  # Detiene la app si hay error
+    st.stop()
+
+# --- Funciones de Preprocesamiento (iguales a tu notebook) ---
+def clean_text(texts):
+    """Limpia el texto igual que en tu notebook"""
+    cleaned_texts = []
+    for text in texts:
+        text = text.lower()
+        text = re.sub(r'[^\w\s]', '', text)
+        cleaned_texts.append(text)
+    return cleaned_texts
+
+def preprocess_text(texts, tokenizer, max_len=50):
+    """Tokeniza y aplica padding igual que en tu notebook"""
+    text_seq = tokenizer.texts_to_sequences(texts)
+    return pad_sequences(text_seq, maxlen=max_len, padding="post")
 
 # --- Función de Traducción ---
 def translate_to_english(text):
@@ -37,12 +56,34 @@ def translate_to_english(text):
         st.error(f"Error en traducción: {e}")
         return text  # Fallback: usa texto original
 
-# --- Función de Predicción ---
-def predict_sentiment(text, max_len=50):
-    sequence = tokenizer.texts_to_sequences([text])
-    padded = pad_sequences(sequence, maxlen=max_len, padding='post', truncating='post')
-    prediction = model.predict(padded, verbose=0)[0][0]  # Suprime output de TensorFlow
-    return prediction
+# --- Función de Predicción (actualizada para 3 clases) ---
+def predict_sentiment(text):
+    """Devuelve (clase_predicha, probabilidad) como en tu notebook"""
+    try:
+        # Preprocesamiento idéntico al notebook
+        text = [text]
+        text = clean_text(text)
+        text_padded = preprocess_text(text, tokenizer)
+        
+        # Predicción
+        y_prob = model.predict(text_padded, verbose=0)
+        y_pred = np.argmax(y_prob, axis=1)
+        
+        classes = ['Negative', 'Positive', 'Neutral']
+        pred_class = classes[y_pred[0]]
+        pred_prob = float(y_prob[0][y_pred[0]])
+        
+        # Mapeo a emojis para Streamlit
+        emoji_map = {
+            'Negative': '😠 Negativo',
+            'Positive': '😊 Positivo', 
+            'Neutral': '😐 Neutral'
+        }
+        
+        return emoji_map[pred_class], pred_prob
+    except Exception as e:
+        st.error(f"Error en predicción: {str(e)}")
+        return None, None
 
 # --- Interfaz de Usuario ---
 st.title("🔍 Sentio - Análisis de Sentimientos")
@@ -51,41 +92,48 @@ col1, col2 = st.columns([1, 1])
 with col1:
     st.header("📝 Ingresa tu texto")
     language = st.selectbox("Idioma:", ["Español", "English"])
-    user_input = st.text_area("Escribe aquí (máx. 50 caracteres):", max_chars=50, height=150)
+    user_input = st.text_area("Escribe aquí:", max_chars=200, height=100)
     analyze_btn = st.button("Analizar Sentimiento", type="primary")
 
 with col2:
     st.header("📊 Resultado")
     
-    if analyze_btn and user_input:
-        with st.spinner("Analizando..."):
-            # Preprocesamiento según idioma
-            input_text = translate_to_english(user_input) if language == "Español" else user_input
-            
-            if language == "Español":
-                st.sidebar.info(f"Texto original: '{user_input}'")
-                st.sidebar.info(f"Texto traducido: '{input_text}'")
-            
-            # Predicción real
-            confidence = predict_sentiment(input_text)
-            sentiment_emoji = "😊" if confidence > 0.5 else "😠"
-            sentiment_text = f"{'Positivo' if confidence > 0.5 else 'Negativo'} {sentiment_emoji}"
-            confidence_pct = round(float(confidence) * 100, 2)
-            
-            # Mostrar resultados
-            with st.container():
-                st.markdown(f"""
-                <div class="result-panel">
-                    <h3>Predicción:</h3>
-                    <p style='font-size: 24px;'><strong>{sentiment_text}</strong></p>
-                    <p>Confianza: <strong>{confidence_pct}%</strong></p>
-                    <p>Idioma analizado: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
-                </div>
-                """, unsafe_allow_html=True)
-                st.progress(float(confidence))
+    if analyze_btn:
+        if not user_input:
+            st.warning("⚠️ Por favor ingresa texto")
+        else:
+            with st.spinner("Analizando..."):
+                # Traducción si es necesario
+                input_text = translate_to_english(user_input) if language == "Español" else user_input
                 
-    elif analyze_btn and not user_input:
-        st.warning("⚠️ Por favor ingresa texto antes de analizar")
+                # Predicción
+                sentiment, confidence = predict_sentiment(input_text)
+                
+                if sentiment and confidence:
+                    confidence_pct = round(confidence * 100, 2)
+                    
+                    # Determinar color según el sentimiento
+                    if "Positivo" in sentiment:
+                        sentiment_color = "#2ecc71"  # Verde
+                        emoji = "😊"
+                    elif "Negativo" in sentiment:
+                        sentiment_color = "#e74c3c"  # Rojo
+                        emoji = "😠"
+                    else:
+                        sentiment_color = "#f39c12"  # Naranja
+                        emoji = "😐"
+                        
+                    # Mostrar resultados
+                    st.markdown(f"""
+                    <div style="padding:20px; border-radius:10px; background:#f0f2f6; margin-top:20px;">
+                        <h3>Predicción:</h3>
+                        <p style='font-size:24px;'><strong>{sentiment}</strong></p>
+                        <p>Confianza: <strong>{confidence_pct}%</strong></p>
+                        <p>Texto analizado: <i>"{input_text[:50]}..."</i></p>
+                        <p>Idioma: <strong>{'Inglés (traducido)' if language == 'Español' else 'Inglés'}</strong></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.progress(confidence)
 
 # Sidebar
 st.sidebar.markdown("""
@@ -105,7 +153,7 @@ st.markdown("""
         margin-top: 20px;
     }
     .stProgress > div > div > div {
-        background-color: #FF4B4B;  /* Color rojo Sentio */
+        background-color: #FF4B4B;
     }
 </style>
 """, unsafe_allow_html=True)
