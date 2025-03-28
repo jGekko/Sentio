@@ -1,6 +1,8 @@
 # 📝 Sentio - Análisis de Sentimientos
 
-https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gifv
+
+![](https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gif)
+
 
 Sentio es una aplicación web interactiva para análisis de sentimientos que utiliza un modelo de aprendizaje profundo para clasificar texto en positivo, negativo o neutral, con soporte para traducción automática de español a inglés.
 
