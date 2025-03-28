@@ -1,19 +1,25 @@
-# 🎈 Blank app template
+# 📝 Sentio - Análisis de Sentimientos
 
-A simple Streamlit app template for you to modify!
+https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gifv
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+Sentio es una aplicación web interactiva para análisis de sentimientos que utiliza un modelo de aprendizaje profundo para clasificar texto en positivo, negativo o neutral, con soporte para traducción automática de español a inglés.
 
-### How to run it on your own machine
+## 🌟 Características principales
+🔍 Análisis de sentimientos en tiempo real
 
-1. Install the requirements
+🌐 Soporte para textos en español (con traducción automática) e inglés
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+📊 Visualización de resultados con porcentaje de confianza
 
-2. Run the app
+📱 Diseño responsive que funciona en móviles y desktop
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+## 🛠️ Tecnologías utilizadas
+Python 3
+
+Streamlit (framework web)
+
+TensorFlow/Keras (modelo de deep learning)
+
+Googletrans (traducción automática)
+
+BeautifulSoup y Spacy (librerias de analisis de lenguaje y texto)
