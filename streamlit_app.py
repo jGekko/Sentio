@@ -26,7 +26,7 @@ st.markdown("""
 <style>
     /* Fondo animado para toda la aplicación */
     [data-testid="stAppViewContainer"] {
-        background-image: url("https://i.pinimg.com/originals/02/42/9a/02429ad821287ebbe8f1ab4edf7ce293.gif");
+        background-image: url("https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gif");
         background-size: cover;
         background-attachment: fixed;
         background-position: center;
