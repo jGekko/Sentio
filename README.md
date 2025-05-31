@@ -1,31 +1,22 @@
-# 🔍 Sentio - Análisis de Sentimientos
+# Sentio – Análisis de Sentimientos en Tiempo Real
 
+**Sentio** es una aplicación web interactiva que permite analizar el sentimiento de textos en español e inglés mediante un modelo de aprendizaje profundo. Clasifica el contenido como positivo, negativo o neutral, y muestra resultados con porcentaje de confianza. Incluye traducción automática para entradas en español.
 
-![](https://64.media.tumblr.com/817c19affd93dc7dc145364acbb10331/8e4bb3b18c84e15f-60/s1280x1920/5cdcb9e6cb7edc05ab6994b12132f590033e7c0b.gif)
+> Enfoque en comprensión emocional de textos mediante procesamiento de lenguaje natural.
 
+## Características
 
-Sentio es una aplicación web interactiva para análisis de sentimientos que utiliza un modelo de aprendizaje profundo para clasificar texto en positivo, negativo o neutral, con soporte para traducción automática de español a inglés.
+- Análisis de sentimientos en tiempo real
+- Soporte para textos en español (con traducción automática) e inglés
+- Visualización de resultados con porcentajes de confianza
+- Interfaz simple compatible con móviles y escritorio
 
-## 🌟 Características principales
-🔍 Análisis de sentimientos en tiempo real
+## Demo
 
-🌐 Soporte para textos en español (con traducción automática) e inglés
+Accede a la aplicación en:
+[https://projectsentio.streamlit.app/](https://projectsentio.streamlit.app/)
 
-📊 Visualización de resultados con porcentaje de confianza
+## Capturas
 
-📱 Diseño responsive que funciona en móviles y desktop
-
-## 🛠️ Tecnologías utilizadas
-Python 3
-
-Streamlit (framework web)
-
-TensorFlow/Keras (modelo de deep learning)
-
-Googletrans (traducción automática)
-
-BeautifulSoup y Spacy (librerias de analisis de lenguaje y texto)
-
-## 🌍 Demo en línea
-
-Puedes probar una versión en vivo de la aplicación en: Enlace a demo: https://projectsentio.streamlit.app/
+![Captura 1](./imagenes/snapSENTIO1.png)
+![Captura 2](./imagenes/snapSENTIO2.png)
