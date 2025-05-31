@@ -199,7 +199,7 @@ def predict_sentiment(text):
 # ==============================================
 
 # Título
-st.title("🔍 Testio - Análisis de Sentimientos")
+st.title("🔍 Sentio - Análisis de Sentimientos")
     
 # Instrucciones
 st.markdown("""
